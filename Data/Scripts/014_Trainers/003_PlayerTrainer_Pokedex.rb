@@ -4,17 +4,18 @@ class PlayerTrainer
 
   # Represents the player's Pokédex.
   class Pokedex
-    # @return [Hash{Symbol => Boolean}] seen Pokémon
+    # @return [Hash{Symbol => Boolean}] seen Pokémon hash
     attr_reader :seen
-    # @return [Hash{Symbol => Boolean}] owned Pokémon
+    # @return [Hash{Symbol => Boolean}] owned Pokémon hash
     attr_reader :owned
-    # @return [Hash{Symbol => Array}] seen forms
+    # @return [Hash{Symbol => Array}] seen forms hash (species => [[], []])
     attr_reader :seen_forms
-    # @return [Hash{Symbol => Array}] last seen forms
+    # @return [Hash{Symbol => Array}] last seen forms (species => [gender, form])
     attr_reader :last_seen_forms
-    # @return [Hash{Symbol => Boolean}] owned shadow Pokémon
+    # @return [Hash{Symbol => Boolean}] owned shadow Pokémon hash
     attr_reader :owned_shadow
     # @return [Array<Integer>] an array of viable dexes
+    # @see {#refresh_viable_dexes}
     attr_reader :viable_dexes
 
     # Creates an empty Pokédex.
@@ -153,7 +154,7 @@ class PlayerTrainer
 
     # Decides which dex lists are able to be viewed (i.e. they are unlocked and have
     # at least 1 seen species in them), and saves all viable dex region numbers
-    # (National dex comes after regional dexes).
+    # into {#viable_dexes} (National dex comes after regional dexes).
     # If the dex list shown depends on the player's location, this just decides if
     # a species in the current region has been seen - doesn't look at other regions.
     # Used to decide whether to show the Pokédex in the pause menu.

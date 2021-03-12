@@ -132,10 +132,9 @@ class PokeBattle_Trainer
     return ret
   end
 
-  # Transfers Pokédex data into the given Pokedex object.
+  # Transfers old Pokédex data into the given Pokedex object.
   # @param pokedex [PlayerTrainer::Pokedex]
   def transfer_pokedex(pokedex)
-    validate pokedex => PlayerTrainer::Pokedex
     @seen.each_with_index do |seen, index|
       next unless seen
       pokedex.set_seen(index)

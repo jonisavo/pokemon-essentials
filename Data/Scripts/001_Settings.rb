@@ -188,9 +188,8 @@ module Settings
   USE_CURRENT_REGION_DEX = false
   # The names of the Pokédex lists, in the order they are defined in the PBS
   # file "regionaldexes.txt". The last name is for the National Dex and is added
-  # onto the end of this array (remember that you don't need to use it). This
-  # array's order is also the order of $PokemonGlobal.pokedexUnlocked, which
-  # records which Dexes have been unlocked (the first is unlocked by default).
+  # onto the end of this array (remember that you don't need to use it). The
+  # first is unlocked by default.
   # If an entry is just a name, then the region map shown in the Area page while
   # viewing that Dex list will be the region map of the region the player is
   # currently in. The National Dex entry should always behave like this.
