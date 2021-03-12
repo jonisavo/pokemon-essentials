@@ -46,15 +46,14 @@ module PokeBattle_BattleCommon
       # Record the Pokémon's species as owned in the Pokédex
       if !pbPlayer.hasOwned?(pkmn.species)
         pbPlayer.set_owned(pkmn.species)
-        if $Trainer.pokedex
+        if $PokemonGlobal.pokedex_access
           pbDisplayPaused(_INTL("{1}'s data was added to the Pokédex.",pkmn.name))
           @scene.pbShowPokedex(pkmn.species)
         end
       end
       # Record a Shadow Pokémon's species as having been caught
       if pkmn.shadowPokemon?
-        pbPlayer.owned_shadow = {} if !pbPlayer.owned_shadow
-        pbPlayer.owned_shadow[pkmn.species] = true
+        pbPlayer.pokedex.owned_shadow[pkmn.species] = true
       end
       # Store caught Pokémon
       pbStorePokemon(pkmn)

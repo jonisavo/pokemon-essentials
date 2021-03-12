@@ -93,30 +93,30 @@ class PokemonPokedexMenuScreen
   def pbStartScreen
     commands  = []
     commands2 = []
-    dexnames = Settings.pokedex_names
-    for i in 0...$PokemonGlobal.pokedexViable.length
-      index = $PokemonGlobal.pokedexViable[i]
-      if dexnames[index]==nil
-        commands[i] = _INTL("Pokédex")
+    dex_names = Settings.pokedex_names
+    $Trainer.pokedex.viable_dexes.each_with_index do |dex, i|
+      if dex_names[dex].nil?
+        commands[i] = _INTL('Pokédex')
       else
-        if dexnames[index].is_a?(Array)
-          commands[i] = dexnames[index][0]
-        else
-          commands[i] = dexnames[index]
-        end
+        data = dex_names[dex]
+        commands[i] = data.is_a?(Array) ? data[0] : data
       end
-      index = -1 if index >= $PokemonGlobal.pokedexUnlocked.length - 1
-      commands2[i] = [$Trainer.seen_count(index),
-                      $Trainer.owned_count(index),
-                      pbGetRegionalDexLength(index)]
+      dex = -1 if dex >= $Trainer.pokedex.unlocked_dex_count - 1
+      commands2[i] = [
+        $Trainer.pokedex.seen_count(region: dex),
+        $Trainer.pokedex.owned_count(region: dex),
+        pbGetRegionalDexLength(dex)
+      ]
     end
-    commands.push(_INTL("Exit"))
-    @scene.pbStartScene(commands,commands2)
+    commands.push(_INTL('Exit'))
+    @scene.pbStartScene(commands, commands2)
     loop do
       cmd = @scene.pbScene
-      break if cmd<0 || cmd>=commands2.length   # Cancel/Exit
-      $PokemonGlobal.pokedexDex = $PokemonGlobal.pokedexViable[cmd]
-      $PokemonGlobal.pokedexDex = -1 if $PokemonGlobal.pokedexDex==$PokemonGlobal.pokedexUnlocked.length-1
+      break if cmd < 0 || cmd >= commands2.length   # Cancel/Exit
+      $PokemonGlobal.pokedexDex = $Trainer.pokedex.viable_dexes[cmd]
+      if $PokemonGlobal.pokedexDex == $Trainer.pokedex.unlocked_dex_count - 1
+        $PokemonGlobal.pokedexDex = -1
+      end
       pbFadeOutIn {
         scene = PokemonPokedex_Scene.new
         screen = PokemonPokedexScreen.new(scene)

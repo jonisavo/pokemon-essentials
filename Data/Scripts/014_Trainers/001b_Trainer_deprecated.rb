@@ -2,6 +2,86 @@
 # Deprecated
 #===============================================================================
 class PlayerTrainer
+  # @deprecated Use {Pokedex#clear} instead. This alias is slated to be removed in v20.
+  def clearPokedex
+    Deprecation.warn_method('PlayerTrainer#clearPokedex', 'v20', 'Pokedex#clear')
+    @pokedex.clear
+  end
+
+  # @deprecated Use {Pokedex#seen} instead. This alias is slated to be removed in v20.
+  def seen
+    Deprecation.warn_method('PlayerTrainer#sen', 'v20', 'Pokedex#seen')
+    return @pokedex.seen
+  end
+
+  # @deprecated Use {Pokedex#owned} instead. This alias is slated to be removed in v20.
+  def owned
+    Deprecation.warn_method('PlayerTrainer#owned', 'v20', 'Pokedex#owned')
+    return @pokedex.owned
+  end
+
+  # @deprecated Use {Pokedex#seen?} instead. This alias is slated to be removed in v20.
+  def seen?(species)
+    Deprecation.warn_method('PlayerTrainer#seen?', 'v20', 'Pokedex#seen?')
+    return @pokedex.seen?(species)
+  end
+  alias hasSeen? seen?
+
+  # @deprecated Use {Pokedex#owned??} instead. This alias is slated to be removed in v20.
+  def owned?(species)
+    Deprecation.warn_method('PlayerTrainer#owned?', 'v20', 'Pokedex#owned?')
+    return @pokedex.owned?(species)
+  end
+  alias hasOwned? owned?
+
+  # @deprecated Use {Pokedex#seen_forms} instead. This alias is slated to be removed in v20.
+  def formseen
+    Deprecation.warn_method('PlayerTrainer#formseen', 'v20', 'Pokedex#seen_forms')
+    return @pokedex.seen_forms
+  end
+
+  # @deprecated Use {Pokedex#last_seen_forms} instead. This alias is slated to be removed in v20.
+  def formlastseen
+    Deprecation.warn_method('PlayerTrainer#formlastseen', 'v20', 'Pokedex#last_seen_forms')
+    return @pokedex.last_seen_forms
+  end
+
+  # @deprecated Use {Pokedex#owned_shadow} instead. This alias is slated to be removed in v20.
+  def shadowcaught
+    Deprecation.warn_method('PlayerTrainer#shadowcaught', 'v20', 'Pokedex#owned_shadow')
+    return @pokedex.owned_shadow
+  end
+
+  # @deprecated Use {Pokedex#set_seen} instead. This alias is slated to be removed in v20.
+  def setSeen(species)
+    Deprecation.warn_method('PlayerTrainer#setSeen', 'v20', 'Pokedex#set_seen')
+    @pokedex.set_seen(species)
+  end
+
+  # @deprecated Use {Pokedex#set_owned} instead. This alias is slated to be removed in v20.
+  def setOwned(species)
+    Deprecation.warn_method('PlayerTrainer#setOwned', 'v20', 'Pokedex#set_owned')
+    @pokedex.set_owned(species)
+  end
+
+  # @deprecated Use {Pokedex#seen_count} instead. This alias is slated to be removed in v20.
+  def pokedexSeen(region = -1)
+    Deprecation.warn_method('PlayerTrainer#pokedexSeen', 'v20', 'Pokedex#seen_count')
+    @pokedex.seen_count(region: region)
+  end
+
+  # @deprecated Use {Pokedex#owned_count} instead. This alias is slated to be removed in v20.
+  def pokedexOwned(region = -1)
+    Deprecation.warn_method('PlayerTrainer#pokedexOwned', 'v20', 'Pokedex#owned_count')
+    @pokedex.owned_count(region: region)
+  end
+
+  # @deprecated Use {Pokedex#seen_forms_count} instead. This alias is slated to be removed in v20.
+  def numFormsSeen(species)
+    Deprecation.warn_method('PlayerTrainer#numFormsSeen', 'v20', 'Pokedex#seen_forms_count')
+    return @pokedex.seen_forms_count(species)
+  end
+
   deprecated_method_alias :fullname, :full_name, removal_in: 'v20'
   deprecated_method_alias :publicID, :public_ID, removal_in: 'v20'
   deprecated_method_alias :secretID, :secret_ID, removal_in: 'v20'
@@ -22,19 +102,10 @@ class PlayerTrainer
   deprecated_method_alias :lastParty, :last_party, removal_in: 'v20'
   deprecated_method_alias :lastPokemon, :last_pokemon, removal_in: 'v20'
   deprecated_method_alias :lastAblePokemon, :last_able_pokemon, removal_in: 'v20'
-  deprecated_method_alias :formseen, :seen_forms, removal_in: 'v20'
-  deprecated_method_alias :formlastseen, :last_seen_forms, removal_in: 'v20'
-  deprecated_method_alias :shadowcaught, :owned_shadow, removal_in: 'v20'
   deprecated_method_alias :numbadges, :badge_count, removal_in: 'v20'
-  deprecated_method_alias :pokedexSeen, :seen_count, removal_in: 'v20'
-  deprecated_method_alias :pokedexOwned, :owned_count, removal_in: 'v20'
-  deprecated_method_alias :numFormsSeen, :seen_forms_count, removal_in: 'v20'
-  deprecated_method_alias :clearPokedex, :clear_pokedex, removal_in: 'v20'
   deprecated_method_alias :metaID, :character_ID, removal_in: 'v20'
   deprecated_method_alias :mysterygiftaccess, :mystery_gift_unlocked, removal_in: 'v20'
   deprecated_method_alias :mysterygift, :mystery_gifts, removal_in: 'v20'
-  deprecated_method_alias :setSeen, :set_seen, removal_in: 'v20'
-  deprecated_method_alias :setOwned, :set_owned, removal_in: 'v20'
 end
 
 class PokeBattle_Trainer
@@ -54,24 +125,42 @@ class PokeBattle_Trainer
     trainer.party.each { |p| ret.party.push(PokeBattle_Pokemon.convert(p)) }
     ret.badges                = trainer.badges.clone
     ret.money                 = trainer.money
-    trainer.seen.each_with_index { |value, i| ret.set_seen(i) if value }
-    trainer.owned.each_with_index { |value, i| ret.set_owned(i) if value }
-    trainer.formseen.each_with_index do |value, i|
-      ret.seen_forms[GameData::Species.get(i).species] = [value[0].clone, value[1].clone] if value
-    end
-    trainer.formlastseen.each_with_index do |value, i|
-      ret.last_seen_forms[GameData::Species.get(i).species] = value.clone if value
-    end
-    if trainer.shadowcaught
-      trainer.shadowcaught.each_with_index do |value, i|
-        ret.owned_shadow[GameData::Species.get(i).species] = true if value
-      end
-    end
-    ret.pokedex               = trainer.pokedex
+    trainer.transfer_pokedex(ret.pokedex)
     ret.pokegear              = trainer.pokegear
     ret.mystery_gift_unlocked = trainer.mysterygiftaccess if trainer.mysterygiftaccess
     ret.mystery_gifts         = trainer.mysterygift.clone if trainer.mysterygift
     return ret
+  end
+
+  # Transfers Pokédex data into the given Pokedex object.
+  # @param pokedex [PlayerTrainer::Pokedex]
+  def transfer_pokedex(pokedex)
+    validate pokedex => PlayerTrainer::Pokedex
+    @seen.each_with_index do |seen, index|
+      next unless seen
+      pokedex.set_seen(index)
+    end
+    @owned.each_with_index do |owned, index|
+      next unless owned
+      pokedex.set_owned(index)
+    end
+    @formseen.each_with_index do |value, index|
+      species_id = GameData::Species.try_get(index)&.species
+      next if species_id.nil? || value.nil?
+      pokedex.seen_forms[species_id] = [value[0].clone, value[1].clone]
+    end
+    @formlastseen.each_with_index do |value, index|
+      species_id = GameData::Species.try_get(index)&.species
+      next if species_id.nil? || value.nil?
+      pokedex.last_seen_forms[species_id] = value.clone
+    end
+    if @shadowcaught
+      @shadowcaught.each_with_index do |value, index|
+        species_id = GameData::Species.try_get(index)&.species
+        next if species_id.nil? || !value
+        pokedex.owned_shadow[species_id] = value.clone
+      end
+    end
   end
 end
 

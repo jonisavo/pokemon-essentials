@@ -156,8 +156,6 @@ alias pbGenEgg pbGenerateEgg
 # Recording Pokémon forms as seen
 #===============================================================================
 def pbSeenForm(species, gender = 0, form = 0)
-  $Trainer.seen_forms   = {} if !$Trainer.seen_forms
-  $Trainer.last_seen_forms = {} if !$Trainer.last_seen_forms
   if species.is_a?(Pokemon)
     species_data = species.species_data
     gender = species.gender
@@ -173,18 +171,18 @@ def pbSeenForm(species, gender = 0, form = 0)
     form = species_data.form
   end
   form = 0 if species_data.form_name.nil? || species_data.form_name.empty?
-  $Trainer.seen_forms[species] = [[], []] if !$Trainer.seen_forms[species]
-  $Trainer.seen_forms[species][gender][form] = true
-  $Trainer.last_seen_forms[species] = [] if !$Trainer.last_seen_forms[species]
-  $Trainer.last_seen_forms[species] = [gender, form] if $Trainer.last_seen_forms[species] == []
+  $Trainer.pokedex.seen_forms[species] ||= [[], []]
+  $Trainer.pokedex.seen_forms[species][gender][form] = true
+  $Trainer.pokedex.last_seen_forms[species] ||= []
+  return if $Trainer.pokedex.last_seen_forms[species] != []
+  $Trainer.pokedex.last_seen_forms[species] = [gender, form]
 end
 
 def pbUpdateLastSeenForm(pkmn)
-  $Trainer.last_seen_forms = {} if !$Trainer.last_seen_forms
   species_data = pkmn.species_data
   form = species_data.pokedex_form
   form = 0 if species_data.form_name.nil? || species_data.form_name.empty?
-  $Trainer.last_seen_forms[pkmn.species] = [pkmn.gender, form]
+  $Trainer.pokedex.last_seen_forms[pkmn.species] = [pkmn.gender, form]
 end
 
 #===============================================================================

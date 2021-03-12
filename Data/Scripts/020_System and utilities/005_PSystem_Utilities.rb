@@ -394,53 +394,26 @@ def pbGetRegionalDexLength(region_dex)
   return (dex_list) ? dex_list.length : 0
 end
 
-# Decides which Dex lists are able to be viewed (i.e. they are unlocked and have
-# at least 1 seen species in them), and saves all viable dex region numbers
-# (National Dex comes after regional dexes).
-# If the Dex list shown depends on the player's location, this just decides if
-# a species in the current region has been seen - doesn't look at other regions.
-# Here, just used to decide whether to show the Pokédex in the Pause menu.
+# @deprecated Use {PlayerTrainer::Pokedex#refresh_viable_dexes} instead. This alias
+#   is slated to be removed in v20.
 def pbSetViableDexes
-  $PokemonGlobal.pokedexViable = []
-  if Settings::USE_CURRENT_REGION_DEX
-    region = pbGetCurrentRegion
-    region = -1 if region>=$PokemonGlobal.pokedexUnlocked.length-1
-    $PokemonGlobal.pokedexViable[0] = region if $Trainer.seen_any?(region)
-  else
-    numDexes = $PokemonGlobal.pokedexUnlocked.length
-    if numDexes==1   # National Dex only
-      if $PokemonGlobal.pokedexUnlocked[0]
-        $PokemonGlobal.pokedexViable.push(0) if $Trainer.seen_any?
-      end
-    else             # Regional dexes + National Dex
-      for i in 0...numDexes
-        regionToCheck = (i==numDexes-1) ? -1 : i
-        if $PokemonGlobal.pokedexUnlocked[i]
-          $PokemonGlobal.pokedexViable.push(i) if $Trainer.seen_any?(regionToCheck)
-        end
-      end
-    end
-  end
+  Deprecation.warn_method('pbSetViableDexes', 'v20', 'PlayerTrainer::Pokedex#refresh_viable_dexes')
+  $Trainer.pokedex.refresh_viable_dexes
 end
 
-# Unlocks a Dex list. The National Dex is -1 here (or nil argument).
-def pbUnlockDex(dex=-1)
-  index = dex
-  if index<0 || index>$PokemonGlobal.pokedexUnlocked.length-1
-    index = $PokemonGlobal.pokedexUnlocked.length-1
-  end
-  $PokemonGlobal.pokedexUnlocked[index] = true
+# @deprecated Use {PlayerTrainer::Pokedex#unlock_dex} instead. This alias is slated to be
+#   removed in v20.
+def pbUnlockDex(dex = -1)
+  Deprecation.warn_method('pbUnlockDex', 'v20', 'PlayerTrainer::Pokedex#unlock_dex')
+  $Trainer.pokedex.unlock_dex(dex)
 end
 
-# Locks a Dex list. The National Dex is -1 here (or nil argument).
-def pbLockDex(dex=-1)
-  index = dex
-  if index<0 || index>$PokemonGlobal.pokedexUnlocked.length-1
-    index = $PokemonGlobal.pokedexUnlocked.length-1
-  end
-  $PokemonGlobal.pokedexUnlocked[index] = false
+# @deprecated Use {PlayerTrainer::Pokedex#lock_dex} instead. This alias is slated to be
+#   removed in v20.
+def pbLockDex(dex = -1)
+  Deprecation.warn_method('pbLockDex', 'v20', 'PlayerTrainer::Pokedex#lock_dex')
+  $Trainer.pokedex.lock_dex(dex)
 end
-
 
 
 #===============================================================================

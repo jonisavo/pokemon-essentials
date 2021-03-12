@@ -72,12 +72,12 @@ class PokemonPokedexInfo_Scene
     @viewport.z = 99999
     dexnum = species
     dexnumshift = false
-    if $PokemonGlobal.pokedexUnlocked[$PokemonGlobal.pokedexUnlocked.length - 1]
+    if $Trainer.pokedex.unlocked?($Trainer.pokedex.unlocked_dex_count - 1)
       dexnumshift = true if Settings::DEXES_WITH_OFFSETS.include?(-1)   # National Dex
     else
       dexnum = 0
-      for i in 0...$PokemonGlobal.pokedexUnlocked.length - 1   # Regional Dexes
-        next if !$PokemonGlobal.pokedexUnlocked[i]
+      for i in 0...$Trainer.pokedex.unlocked_dex_count - 1 # Regional Dexes
+        next unless $Trainer.pokedex.unlocked?(i)
         num = pbGetRegionalNumber(i,species)
         next if num <= 0
         dexnum = num
@@ -121,10 +121,9 @@ class PokemonPokedexInfo_Scene
 
   def pbUpdateDummyPokemon
     @species = @dexlist[@index][0]
-    $Trainer.last_seen_forms = {} if !$Trainer.last_seen_forms
-    $Trainer.last_seen_forms[@species] = [] if !$Trainer.last_seen_forms[@species]
-    @gender  = $Trainer.last_seen_forms[@species][0] || 0
-    @form    = $Trainer.last_seen_forms[@species][1] || 0
+    $Trainer.pokedex.last_seen_forms[@species] ||= []
+    @gender  = $Trainer.pokedex.last_seen_forms[@species][0] || 0
+    @form    = $Trainer.pokedex.last_seen_forms[@species][1] || 0
     species_data = GameData::Species.get_species_form(@species, @form)
     @sprites["infosprite"].setSpeciesBitmap(@species,@gender,@form)
     if @sprites["formfront"]
@@ -149,16 +148,18 @@ class PokemonPokedexInfo_Scene
       next if sp.form != 0 && (!sp.real_form_name || sp.real_form_name.empty?)
       next if sp.pokedex_form != sp.form
       multiple_forms = true if sp.form > 0
-      $Trainer.seen_forms[@species] = [[], []] if !$Trainer.seen_forms[@species]
+      $Trainer.pokedex.seen_forms[@species] ||= [[], []]
       case sp.gender_ratio
       when :AlwaysMale, :AlwaysFemale, :Genderless
         real_gender = (sp.gender_ratio == :AlwaysFemale) ? 1 : 0
-        next if !$Trainer.seen_forms[@species][real_gender][sp.form] && !Settings::DEX_SHOWS_ALL_FORMS
+        next if !$Trainer.pokedex.seen_forms[@species][real_gender][sp.form] &&
+          !Settings::DEX_SHOWS_ALL_FORMS
         real_gender = 2 if sp.gender_ratio == :Genderless
         ret.push([sp.form_name, real_gender, sp.form])
       else   # Both male and female
         for real_gender in 0...2
-          next if !$Trainer.seen_forms[@species][real_gender][sp.form] && !Settings::DEX_SHOWS_ALL_FORMS
+          next if !$Trainer.pokedex.seen_forms[@species][real_gender][sp.form] &&
+            !Settings::DEX_SHOWS_ALL_FORMS
           ret.push([sp.form_name, real_gender, sp.form])
           break if sp.form_name && !sp.form_name.empty?   # Only show 1 entry for each non-0 form
         end
@@ -386,9 +387,9 @@ class PokemonPokedexInfo_Scene
 
   def pbGoToPrevious
     newindex = @index
-    while newindex>0
+    while newindex > 0
       newindex -= 1
-      if $Trainer.seen?(@dexlist[newindex][0])
+      if $Trainer.pokedex.seen?(@dexlist[newindex][0])
         @index = newindex
         break
       end
@@ -397,9 +398,9 @@ class PokemonPokedexInfo_Scene
 
   def pbGoToNext
     newindex = @index
-    while newindex<@dexlist.length-1
+    while newindex < @dexlist.length - 1
       newindex += 1
-      if $Trainer.seen?(@dexlist[newindex][0])
+      if $Trainer.pokedex.seen?(@dexlist[newindex][0])
         @index = newindex
         break
       end
@@ -408,23 +409,22 @@ class PokemonPokedexInfo_Scene
 
   def pbChooseForm
     index = 0
-    for i in 0...@available.length
-      if @available[i][1]==@gender && @available[i][2]==@form
+    @available.each_with_index do |data, i|
+      if data[1] == @gender && data[2] == @form
         index = i
         break
       end
     end
     oldindex = -1
     loop do
-      if oldindex!=index
-        $Trainer.last_seen_forms = {} if !$Trainer.last_seen_forms
-        $Trainer.last_seen_forms[@species] = [] if !$Trainer.last_seen_forms
-        $Trainer.last_seen_forms[@species][0] = @available[index][1]
-        $Trainer.last_seen_forms[@species][1] = @available[index][2]
+      if oldindex != index
+        $Trainer.pokedex.last_seen_forms[@species] ||= []
+        $Trainer.pokedex.last_seen_forms[@species][0] = @available[index][1]
+        $Trainer.pokedex.last_seen_forms[@species][1] = @available[index][2]
         pbUpdateDummyPokemon
         drawPage(@page)
-        @sprites["uparrow"].visible   = (index>0)
-        @sprites["downarrow"].visible = (index<@available.length-1)
+        @sprites["uparrow"].visible   = (index > 0)
+        @sprites["downarrow"].visible = (index < @available.length - 1)
         oldindex = index
       end
       Graphics.update
@@ -432,10 +432,10 @@ class PokemonPokedexInfo_Scene
       pbUpdate
       if Input.trigger?(Input::UP)
         pbPlayCursorSE
-        index = (index+@available.length-1)%@available.length
+        index = (index + @available.length - 1) % @available.length
       elsif Input.trigger?(Input::DOWN)
         pbPlayCursorSE
-        index = (index+1)%@available.length
+        index = (index + 1) % @available.length
       elsif Input.trigger?(Input::BACK)
         pbPlayCancelSE
         break
@@ -556,7 +556,7 @@ class PokemonPokedexInfoScreen
     region = -1
     if Settings::USE_CURRENT_REGION_DEX
       region = pbGetCurrentRegion
-      region = -1 if region>=$PokemonGlobal.pokedexUnlocked.length-1
+      region = -1 if region >= $Trainer.pokedex.unlocked_dex_count - 1
     else
       region = $PokemonGlobal.pokedexDex # National Dex -1, regional dexes 0 etc.
     end
