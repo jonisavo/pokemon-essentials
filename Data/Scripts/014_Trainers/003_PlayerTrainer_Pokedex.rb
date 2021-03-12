@@ -142,7 +142,7 @@ class PlayerTrainer
 
     # @return [Integer] amount of unlocked dexes
     def unlocked_dex_count
-      return @unlocked_dexes.length
+      return @unlocked_dexes.count { |value| value == true }
     end
 
     # Shorthand for +self.viable_dexes.length+.
