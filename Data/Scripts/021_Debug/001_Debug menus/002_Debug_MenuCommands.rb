@@ -585,8 +585,6 @@ DebugMenuCommands.register("fillboxes", {
   "name"        => _INTL("Fill Storage Boxes"),
   "description" => _INTL("Add one Pokémon of each species (at Level 50) to storage."),
   "effect"      => proc {
-    $Trainer.seen_forms      = {} if !$Trainer.seen_forms
-    $Trainer.last_seen_forms = {} if !$Trainer.last_seen_forms
     added = 0
     box_qty = $PokemonStorage.maxPokemon(0)
     completed = true
@@ -594,22 +592,22 @@ DebugMenuCommands.register("fillboxes", {
       sp = species_data.species
       f = species_data.form
       # Record each form of each species as seen and owned
-      $Trainer.seen_forms[sp] = [[], []] if !$Trainer.seen_forms[sp]
+      $Trainer.pokedex.seen_forms[sp] ||= [[], []]
       if f == 0
-        $Trainer.set_seen(sp)
-        $Trainer.set_owned(sp)
+        $Trainer.pokedex.set_seen(sp)
+        $Trainer.pokedex.set_owned(sp)
         if [:AlwaysMale, :AlwaysFemale, :Genderless].include?(species_data.gender_ratio)
           g = (species_data.gender_ratio == :AlwaysFemale) ? 1 : 0
-          $Trainer.seen_forms[sp][g][f] = true
-          $Trainer.last_seen_forms[sp] = [g, f] if f == 0
+          $Trainer.pokedex.seen_forms[sp][g][f] = true
+          $Trainer.pokedex.last_seen_forms[sp] = [g, f] if f == 0
         else   # Both male and female
-          $Trainer.seen_forms[sp][0][f] = true
-          $Trainer.seen_forms[sp][1][f] = true
-          $Trainer.last_seen_forms[sp] = [0, f] if f == 0
+          $Trainer.pokedex.seen_forms[sp][0][f] = true
+          $Trainer.pokedex.seen_forms[sp][1][f] = true
+          $Trainer.pokedex.last_seen_forms[sp] = [0, f] if f == 0
         end
       elsif species_data.real_form_name && !species_data.real_form_name.empty?
         g = (species_data.gender_ratio == :AlwaysFemale) ? 1 : 0
-        $Trainer.seen_forms[sp][g][f] = true
+        $Trainer.pokedex.seen_forms[sp][g][f] = true
       end
       # Add Pokémon (if form 0)
       next if f != 0
@@ -743,28 +741,27 @@ DebugMenuCommands.register("dexlists", {
   "name"        => _INTL("Toggle Pokédex and Dexes"),
   "description" => _INTL("Toggle possession of the Pokédex, and edit Regional Dex accessibility."),
   "effect"      => proc {
-    dexescmd = 0
+    chosen_dex = 0
     loop do
-      dexescmds = []
-      dexescmds.push(_INTL("Have Pokédex: {1}", $Trainer.pokedex ? "[YES]" : "[NO]"))
-      d = Settings.pokedex_names
-      for i in 0...d.length
-        name = d[i]
-        name = name[0] if name.is_a?(Array)
-        dexindex = i
-        unlocked = $PokemonGlobal.pokedexUnlocked[dexindex]
-        dexescmds.push(_INTL("{1} {2}", unlocked ? "[Y]" : "[  ]", name))
+      dex_commands = []
+      dex_commands.push(
+        _INTL("Have Pokédex: {1}", $PokemonGlobal.pokedex_access ? "[YES]" : "[NO]")
+      )
+      Settings.pokedex_names.each_with_index do |data, i|
+        name = data.is_a?(Array) ? data[0] : data
+        unlocked = $Trainer.pokedex.unlocked?(i)
+        dex_commands << _INTL('{1} {2}', unlocked ? '[Y]' : '[  ]', name)
       end
-      dexescmd = pbShowCommands(nil, dexescmds, -1, dexescmd)
-      break if dexescmd < 0
-      dexindex = dexescmd - 1
-      if dexindex < 0   # Toggle Pokédex ownership
-        $Trainer.pokedex = !$Trainer.pokedex
+      chosen_dex = pbShowCommands(nil, dex_commands, -1, chosen_dex)
+      break if chosen_dex < 0
+      dex_index = chosen_dex - 1
+      if dex_index < 0   # Toggle Pokédex ownership
+        $PokemonGlobal.pokedex_access = !$PokemonGlobal.pokedex_access
       else   # Toggle Regional Dex accessibility
-        if $PokemonGlobal.pokedexUnlocked[dexindex]
-          pbLockDex(dexindex)
+        if $Trainer.pokedex.unlocked?(dex_index)
+          $Trainer.pokedex.lock_dex(dex_index)
         else
-          pbUnlockDex(dexindex)
+          $Trainer.pokedex.unlock_dex(dex_index)
         end
       end
     end

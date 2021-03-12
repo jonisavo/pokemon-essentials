@@ -102,7 +102,6 @@ class PokemonPauseMenu
       end
       return
     end
-    pbSetViableDexes
     @scene.pbStartScene
     endscene = true
     commands = []
@@ -116,7 +115,9 @@ class PokemonPauseMenu
     cmdDebug    = -1
     cmdQuit     = -1
     cmdEndGame  = -1
-    commands[cmdPokedex = commands.length]  = _INTL("Pokédex") if $Trainer.pokedex && $PokemonGlobal.pokedexViable.length>0
+    if $PokemonGlobal.pokedex_access && $Trainer.pokedex.viable_dex_count > 0
+      commands[cmdPokedex = commands.length] = _INTL("Pokédex")
+    end
     commands[cmdPokemon = commands.length]  = _INTL("Pokémon") if $Trainer.party.length>0
     commands[cmdBag = commands.length]      = _INTL("Bag") if !pbInBugContest?
     commands[cmdPokegear = commands.length] = _INTL("Pokégear") if $Trainer.pokegear
@@ -156,9 +157,11 @@ class PokemonPauseMenu
             @scene.pbRefresh
           }
         else
-          if $PokemonGlobal.pokedexViable.length==1
-            $PokemonGlobal.pokedexDex = $PokemonGlobal.pokedexViable[0]
-            $PokemonGlobal.pokedexDex = -1 if $PokemonGlobal.pokedexDex==$PokemonGlobal.pokedexUnlocked.length-1
+          if $Trainer.pokedex.viable_dex_count == 1
+            $PokemonGlobal.pokedexDex = $Trainer.pokedex.viable_dexes.first
+            if $PokemonGlobal.pokedexDex == $Trainer.pokedex.unlocked_dex_count - 1
+              $PokemonGlobal.pokedexDex = -1
+            end
             pbFadeOutIn {
               scene = PokemonPokedex_Scene.new
               screen = PokemonPokedexScreen.new(scene)

@@ -26,8 +26,7 @@ class PokemonGlobalMetadata
   attr_accessor :snagMachine
   attr_accessor :creditsPlayed
   # Pokédex
-  attr_accessor :pokedexUnlocked # Array storing which Dexes are unlocked
-  attr_accessor :pokedexViable   # All Dexes of non-zero length and unlocked
+  attr_accessor :pokedex_access
   attr_accessor :pokedexDex      # Dex currently looking at (-1 is National Dex)
   attr_accessor :pokedexIndex    # Last species viewed per Dex
   attr_accessor :pokedexMode     # Search mode
@@ -88,14 +87,12 @@ class PokemonGlobalMetadata
     @creditsPlayed        = false
     # Pokédex
     numRegions            = pbLoadRegionalDexes.length
-    @pokedexUnlocked      = []
-    @pokedexViable        = []
+    @pokedex_access       = false
     @pokedexDex           = (numRegions==0) ? -1 : 0
     @pokedexIndex         = []
     @pokedexMode          = 0
     for i in 0...numRegions+1     # National Dex isn't a region, but is included
       @pokedexIndex[i]    = 0
-      @pokedexUnlocked[i] = (i==0)
     end
     # Day Care
     @daycare              = [[nil,0],[nil,0]]
@@ -128,6 +125,12 @@ class PokemonGlobalMetadata
     @pokerusTime          = nil
     # Save file
     @safesave             = false
+  end
+
+  # Makes the Pokédex accessible to the player.
+  # Shorthand for +self.pokedex_access = true+.
+  def give_pokedex
+    @pokedex_access = true
   end
 end
 
