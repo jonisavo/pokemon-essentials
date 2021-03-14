@@ -1,7 +1,4 @@
 class PlayerTrainer
-  # @return [Pokedex] the player's Pokédex
-  attr_reader :pokedex
-
   # Represents the player's Pokédex.
   class Pokedex
     # @return [Hash{Symbol => Boolean}] the seen Pokémon hash

@@ -191,27 +191,39 @@ end
 # Trainer class for the player
 #===============================================================================
 class PlayerTrainer < Trainer
-  attr_writer   :character_ID
+  # @param value [Integer] new character ID
+  attr_writer :character_ID
+  # @return [Integer] the player's outfit
   attr_accessor :outfit
+  # @return [Array<Boolean>] the player's badges
   attr_accessor :badges
-  attr_reader   :money
-  attr_accessor :pokegear                # Whether the Pokégear was obtained
-  attr_accessor :mystery_gift_unlocked   # Whether MG can be used from load screen
-  attr_accessor :mystery_gifts           # Variable that stores downloaded MG data
+  # @return [Integer] the player's money
+  attr_reader :money
+  # @return [Pokedex] the player's Pokédex
+  attr_reader :pokedex
+  # @return [Boolean] whether the Pokégear has been obtained
+  attr_accessor :pokegear
+  # @return [Boolean] whether Mystery Gift can be used from load screen
+  attr_accessor :mystery_gift_unlocked
+  # @return [Array<Array>] downloaded Mystery Gift data
+  attr_accessor :mystery_gifts
 
+  # @return [Integer] the character ID
   def character_ID
     @character_ID = $PokemonGlobal.playerID || 0 if !@character_ID
     return @character_ID
   end
 
+  # Sets the player's money. It can not exceed {Settings::MAX_MONEY}.
+  # @param value [Integer] new money value
   def money=(value)
+    validate value => Integer
     @money = value.clamp(0, Settings::MAX_MONEY)
   end
 
+  # @return [Integer] the amount of badges owned by the player
   def badge_count
-    ret = 0
-    @badges.each { |b| ret += 1 if b }
-    return ret
+    return @badges.count { |badge| badge == true }
   end
 
   # (see Pokedex#seen?)
@@ -225,6 +237,8 @@ class PlayerTrainer < Trainer
   def owned?(species)
     return @pokedex.owned?(species)
   end
+
+  # TODO: Make shortcuts for set_seen and set_owned as well?
 
   #=============================================================================
 
