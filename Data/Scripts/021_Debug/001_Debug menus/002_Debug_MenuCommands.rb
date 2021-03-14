@@ -759,9 +759,9 @@ DebugMenuCommands.register("dexlists", {
         $PokemonGlobal.pokedex_access = !$PokemonGlobal.pokedex_access
       else   # Toggle Regional Dex accessibility
         if $Trainer.pokedex.unlocked?(dex_index)
-          $Trainer.pokedex.lock_dex(dex_index)
+          $Trainer.pokedex.lock(dex_index)
         else
-          $Trainer.pokedex.unlock_dex(dex_index)
+          $Trainer.pokedex.unlock(dex_index)
         end
       end
     end

@@ -401,18 +401,18 @@ def pbSetViableDexes
   $Trainer.pokedex.refresh_viable_dexes
 end
 
-# @deprecated Use {PlayerTrainer::Pokedex#unlock_dex} instead. This alias is slated to be
+# @deprecated Use {PlayerTrainer::Pokedex#unlock} instead. This alias is slated to be
 #   removed in v20.
 def pbUnlockDex(dex = -1)
   Deprecation.warn_method('pbUnlockDex', 'v20', 'PlayerTrainer::Pokedex#unlock_dex')
-  $Trainer.pokedex.unlock_dex(dex)
+  $Trainer.pokedex.unlock(dex)
 end
 
-# @deprecated Use {PlayerTrainer::Pokedex#lock_dex} instead. This alias is slated to be
+# @deprecated Use {PlayerTrainer::Pokedex#lock} instead. This alias is slated to be
 #   removed in v20.
 def pbLockDex(dex = -1)
   Deprecation.warn_method('pbLockDex', 'v20', 'PlayerTrainer::Pokedex#lock_dex')
-  $Trainer.pokedex.lock_dex(dex)
+  $Trainer.pokedex.lock(dex)
 end
 
 

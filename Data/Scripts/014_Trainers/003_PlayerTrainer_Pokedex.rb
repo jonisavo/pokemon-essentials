@@ -120,24 +120,24 @@ class PlayerTrainer
     end
 
     # Unlocks the given dex, -1 being the national dex.
-    # @param dex_id [Integer] dex ID (-1 is the national dex)
-    def unlock_dex(dex_id)
-      validate dex_id => Integer
-      if dex_id < 0 || dex_id > self.unlocked_dex_count - 1
-        dex_id = self.unlocked_dex_count - 1
+    # @param dex [Integer] dex ID (-1 is the national dex)
+    def unlock(dex)
+      validate dex => Integer
+      if dex < 0 || dex > self.unlocked_dex_count - 1
+        dex = self.unlocked_dex_count - 1
       end
-      @unlocked_dexes[dex_id] = true
+      @unlocked_dexes[dex] = true
       self.refresh_viable_dexes
     end
 
     # Locks the given dex, -1 being the national dex.
-    # @param dex_id [Integer] dex ID (-1 is the national dex)
-    def lock_dex(dex_id)
-      validate dex_id => Integer
-      if dex_id < 0 || dex_id > self.unlocked_dex_count - 1
-        dex_id = self.unlocked_dex_count - 1
+    # @param dex [Integer] dex ID (-1 is the national dex)
+    def lock(dex)
+      validate dex => Integer
+      if dex < 0 || dex > self.unlocked_dex_count - 1
+        dex = self.unlocked_dex_count - 1
       end
-      @unlocked_dexes[dex_id] = false
+      @unlocked_dexes[dex] = false
       self.refresh_viable_dexes
     end
 
