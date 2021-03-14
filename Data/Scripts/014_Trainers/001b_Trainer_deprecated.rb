@@ -20,20 +20,6 @@ class PlayerTrainer
     return @pokedex.owned
   end
 
-  # @deprecated Use {Pokedex#seen?} instead. This alias is slated to be removed in v20.
-  def seen?(species)
-    Deprecation.warn_method('PlayerTrainer#seen?', 'v20', 'Pokedex#seen?')
-    return @pokedex.seen?(species)
-  end
-  alias hasSeen? seen?
-
-  # @deprecated Use {Pokedex#owned??} instead. This alias is slated to be removed in v20.
-  def owned?(species)
-    Deprecation.warn_method('PlayerTrainer#owned?', 'v20', 'Pokedex#owned?')
-    return @pokedex.owned?(species)
-  end
-  alias hasOwned? owned?
-
   # @deprecated Use {Pokedex#seen_forms} instead. This alias is slated to be removed in v20.
   def formseen
     Deprecation.warn_method('PlayerTrainer#formseen', 'v20', 'Pokedex#seen_forms')
@@ -102,6 +88,8 @@ class PlayerTrainer
   deprecated_method_alias :lastParty, :last_party, removal_in: 'v20'
   deprecated_method_alias :lastPokemon, :last_pokemon, removal_in: 'v20'
   deprecated_method_alias :lastAblePokemon, :last_able_pokemon, removal_in: 'v20'
+  deprecated_method_alias :hasSeen?, :seen?, removal_in: 'v20'
+  deprecated_method_alias :hasOwned?, :owned?, removal_in: 'v20'
   deprecated_method_alias :numbadges, :badge_count, removal_in: 'v20'
   deprecated_method_alias :metaID, :character_ID, removal_in: 'v20'
   deprecated_method_alias :mysterygiftaccess, :mystery_gift_unlocked, removal_in: 'v20'

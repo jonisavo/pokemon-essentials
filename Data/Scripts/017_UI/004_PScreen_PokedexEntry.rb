@@ -389,7 +389,7 @@ class PokemonPokedexInfo_Scene
     newindex = @index
     while newindex > 0
       newindex -= 1
-      if $Trainer.pokedex.seen?(@dexlist[newindex][0])
+      if $Trainer.seen?(@dexlist[newindex][0])
         @index = newindex
         break
       end
@@ -400,7 +400,7 @@ class PokemonPokedexInfo_Scene
     newindex = @index
     while newindex < @dexlist.length - 1
       newindex += 1
-      if $Trainer.pokedex.seen?(@dexlist[newindex][0])
+      if $Trainer.seen?(@dexlist[newindex][0])
         @index = newindex
         break
       end

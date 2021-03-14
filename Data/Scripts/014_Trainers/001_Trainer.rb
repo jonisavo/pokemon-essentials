@@ -214,6 +214,18 @@ class PlayerTrainer < Trainer
     return ret
   end
 
+  # (see Pokedex#seen?)
+  # Shorthand for +self.pokedex.seen?+.
+  def seen?(species)
+    return @pokedex.seen?(species)
+  end
+
+  # (see Pokedex#owned?)
+  # Shorthand for +self.pokedex.owned?+.
+  def owned?(species)
+    return @pokedex.owned?(species)
+  end
+
   #=============================================================================
 
   def initialize(name, trainer_type)
