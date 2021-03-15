@@ -193,7 +193,7 @@ module PokeBattle_BattleCommon
     # Critical capture check
     if Settings::ENABLE_CRITICAL_CAPTURES
       c = 0
-      numOwned = $Trainer.owned_count
+      numOwned = $Trainer.pokedex.owned_count
       if numOwned>600;    c = x*5/12
       elsif numOwned>450; c = x*4/12
       elsif numOwned>300; c = x*3/12
