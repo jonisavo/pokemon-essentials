@@ -34,9 +34,9 @@ SaveData.register_conversion(:v19_convert_PokemonSystem) do
   end
 end
 
-SaveData.register_conversion(:v19_move_pokedex_flag) do
+SaveData.register_conversion(:v19_move_pokedex_access_flag) do
   essentials_version 19
-  display_title 'Moving Pokédex flag'
+  display_title 'Moving Pokédex access flag'
   to_all do |save_data|
     pokedex_access = false
     save_data[:player].instance_eval do
@@ -64,11 +64,10 @@ SaveData.register_conversion(:v19_move_pokedex_dex_data) do
     save_data[:global_metadata].instance_eval do
       unlocked_dexes = @pokedexUnlocked.dup
     end
+    next if unlocked_dexes.nil?
     save_data[:player].pokedex.instance_eval do
-      unless unlocked_dexes.nil?
-        @unlocked_dexes = unlocked_dexes
-        self.refresh_viable_dexes
-      end
+      @unlocked_dexes = unlocked_dexes
+      self.refresh_viable_dexes
     end
     save_data[:global_metadata].instance_eval do
       @pokedexUnlocked = nil
