@@ -238,8 +238,6 @@ class PlayerTrainer < Trainer
     return @pokedex.owned?(species)
   end
 
-  # TODO: Make shortcuts for set_seen and set_owned as well?
-
   #=============================================================================
 
   def initialize(name, trainer_type)

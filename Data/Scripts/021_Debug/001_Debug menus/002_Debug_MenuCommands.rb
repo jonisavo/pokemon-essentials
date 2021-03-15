@@ -531,8 +531,8 @@ DebugMenuCommands.register("demoparty", {
     party.each do |species|
       pkmn = Pokemon.new(species, 20)
       $Trainer.party.push(pkmn)
-      $Trainer.set_seen(species)
-      $Trainer.set_owned(species)
+      $Trainer.pokedex.set_seen(species)
+      $Trainer.pokedex.set_owned(species)
       pbSeenForm(pkmn)
       case species
       when :PIDGEOTTO

@@ -53,8 +53,8 @@ def pbNicknameAndStore(pkmn)
     pbMessage(_INTL("The Pokémon Boxes are full and can't accept any more!"))
     return
   end
-  $Trainer.set_seen(pkmn.species)
-  $Trainer.set_owned(pkmn.species)
+  $Trainer.pokedex.set_seen(pkmn.species)
+  $Trainer.pokedex.set_owned(pkmn.species)
   pbNickname(pkmn)
   pbStorePokemon(pkmn)
 end
@@ -80,8 +80,8 @@ end
 def pbAddPokemonSilent(pkmn, level = 1, see_form = true)
   return false if !pkmn || pbBoxesFull?
   pkmn = Pokemon.new(pkmn, level) if !pkmn.is_a?(Pokemon)
-  $Trainer.set_seen(pkmn.species)
-  $Trainer.set_owned(pkmn.species)
+  $Trainer.pokedex.set_seen(pkmn.species)
+  $Trainer.pokedex.set_owned(pkmn.species)
   pbSeenForm(pkmn) if see_form
   pkmn.record_first_moves
   if $Trainer.party_full?
@@ -108,8 +108,8 @@ end
 def pbAddToPartySilent(pkmn, level = nil, see_form = true)
   return false if !pkmn || $Trainer.party_full?
   pkmn = Pokemon.new(pkmn, level) if !pkmn.is_a?(Pokemon)
-  $Trainer.set_seen(pkmn.species)
-  $Trainer.set_owned(pkmn.species)
+  $Trainer.pokedex.set_seen(pkmn.species)
+  $Trainer.pokedex.set_owned(pkmn.species)
   pbSeenForm(pkmn) if see_form
   pkmn.record_first_moves
   $Trainer.party[$Trainer.party.length] = pkmn
@@ -131,8 +131,8 @@ def pbAddForeignPokemon(pkmn, level = 1, owner_name = nil, nickname = nil, owner
     pbMessage(_INTL("\\me[Pkmn get]{1} received a Pokémon.\1", $Trainer.name))
   end
   pbStorePokemon(pkmn)
-  $Trainer.set_seen(pkmn.species)
-  $Trainer.set_owned(pkmn.species)
+  $Trainer.pokedex.set_seen(pkmn.species)
+  $Trainer.pokedex.set_owned(pkmn.species)
   pbSeenForm(pkmn) if see_form
   return true
 end

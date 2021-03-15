@@ -622,7 +622,7 @@ class PokeBattle_Battle
 
   def pbSetSeen(battler)
     return if !battler || !@internalBattle
-    pbPlayer.set_seen(battler.displaySpecies)
+    pbPlayer.pokedex.set_seen(battler.displaySpecies)
     pbSeenForm(battler.displaySpecies,battler.displayGender,battler.displayForm)
   end
 
