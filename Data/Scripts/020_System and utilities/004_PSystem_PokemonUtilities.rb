@@ -253,12 +253,12 @@ end
 #===============================================================================
 def pbSize(pkmn)
   baseheight = pkmn.height
-  hpiv = pkmn.iv[0] & 15
-  ativ = pkmn.iv[1] & 15
-  dfiv = pkmn.iv[2] & 15
-  spiv = pkmn.iv[3] & 15
-  saiv = pkmn.iv[4] & 15
-  sdiv = pkmn.iv[5] & 15
+  hpiv = pkmn.iv[:HP] & 15
+  ativ = pkmn.iv[:ATTACK] & 15
+  dfiv = pkmn.iv[:DEFENSE] & 15
+  saiv = pkmn.iv[:SPECIAL_ATTACK] & 15
+  sdiv = pkmn.iv[:SPECIAL_DEFENSE] & 15
+  spiv = pkmn.iv[:SPEED] & 15
   m = pkmn.personalID & 0xFF
   n = (pkmn.personalID >> 8) & 0xFF
   s = (((ativ ^ dfiv) * hpiv) ^ m) * 256 + (((saiv ^ sdiv) * spiv) ^ n)
@@ -290,15 +290,14 @@ def pbHasEgg?(species)
   return false if !species_data
   species = species_data.species
   # species may be unbreedable, so check its evolution's compatibilities
-  evoSpecies = EvolutionHelper.evolutions(species, true)
-  compatSpecies = (evoSpecies && evoSpecies[0]) ? evoSpecies[0][2] : species
+  evoSpecies = species_data.get_evolutions(true)
+  compatSpecies = (evoSpecies && evoSpecies[0]) ? evoSpecies[0][0] : species
   species_data = GameData::Species.try_get(compatSpecies)
   compat = species_data.egg_groups
-  return false if compat.include?(:Undiscovered)
-  return false if compat.include?(:Ditto)
-  baby = EvolutionHelper.baby_species(species)
+  return false if compat.include?(:Undiscovered) || compat.include?(:Ditto)
+  baby = GameData::Species.get(species).get_baby_species
   return true if species == baby   # Is a basic species
-  baby = EvolutionHelper.baby_species(species, true)
+  baby = GameData::Species.get(species).get_baby_species(true)
   return true if species == baby   # Is an egg species without incense
   return false
 end

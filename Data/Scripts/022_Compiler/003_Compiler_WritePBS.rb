@@ -272,11 +272,18 @@ module Compiler
         f.write(sprintf("InternalName = %s\r\n", species.species))
         f.write(sprintf("Type1 = %s\r\n", species.type1))
         f.write(sprintf("Type2 = %s\r\n", species.type2)) if species.type2 != species.type1
-        f.write(sprintf("BaseStats = %s\r\n", species.base_stats.join(",")))
+        stats_array = []
+        evs_array = []
+        GameData::Stat.each_main do |s|
+          next if s.pbs_order < 0
+          stats_array[s.pbs_order] = species.base_stats[s.id]
+          evs_array[s.pbs_order] = species.evs[s.id]
+        end
+        f.write(sprintf("BaseStats = %s\r\n", stats_array.join(",")))
         f.write(sprintf("GenderRate = %s\r\n", species.gender_ratio))
         f.write(sprintf("GrowthRate = %s\r\n", species.growth_rate))
         f.write(sprintf("BaseEXP = %d\r\n", species.base_exp))
-        f.write(sprintf("EffortPoints = %s\r\n", species.evs.join(",")))
+        f.write(sprintf("EffortPoints = %s\r\n", evs_array.join(",")))
         f.write(sprintf("Rareness = %d\r\n", species.catch_rate))
         f.write(sprintf("Happiness = %d\r\n", species.happiness))
         if species.abilities.length > 0
@@ -324,18 +331,15 @@ module Compiler
             next if evo[3]   # Skip prevolution entries
             f.write(",") if need_comma
             need_comma = true
-            f.write(sprintf("%s,%s,", evo[0], getConstantName(PBEvolution, evo[1])))
-            param_type = PBEvolution.getFunction(evo[1], "parameterType")
-            has_param = !PBEvolution.hasFunction?(evo[1], "parameterType") || param_type != nil
-            next if !has_param
-            if param_type
-              if GameData.const_defined?(param_type.to_sym)
-                f.write(evo[2].to_s)
-              else
+            evo_type_data = GameData::Evolution.get(evo[1])
+            param_type = evo_type_data.parameter
+            f.write(sprintf("%s,%s,", evo[0], evo_type_data.id.to_s))
+            if !param_type.nil?
+              if !GameData.const_defined?(param_type.to_sym) && param_type.is_a?(Symbol)
                 f.write(getConstantName(param_type, evo[2]))
+              else
+                f.write(evo[2].to_s)
               end
-            else
-              f.write(evo[2].to_s)
             end
           end
           f.write("\r\n")
@@ -370,9 +374,16 @@ module Compiler
           f.write(sprintf("Type1 = %s\r\n", species.type1))
           f.write(sprintf("Type2 = %s\r\n", species.type2)) if species.type2 != species.type1
         end
-        f.write(sprintf("BaseStats = %s\r\n", species.base_stats.join(","))) if species.base_stats != base_species.base_stats
+        stats_array = []
+        evs_array = []
+        GameData::Stat.each_main do |s|
+          next if s.pbs_order < 0
+          stats_array[s.pbs_order] = species.base_stats[s.id]
+          evs_array[s.pbs_order] = species.evs[s.id]
+        end
+        f.write(sprintf("BaseStats = %s\r\n", stats_array.join(","))) if species.base_stats != base_species.base_stats
         f.write(sprintf("BaseEXP = %d\r\n", species.base_exp)) if species.base_exp != base_species.base_exp
-        f.write(sprintf("EffortPoints = %s\r\n", species.evs.join(","))) if species.evs != base_species.evs
+        f.write(sprintf("EffortPoints = %s\r\n", evs_array.join(","))) if species.evs != base_species.evs
         f.write(sprintf("Rareness = %d\r\n", species.catch_rate)) if species.catch_rate != base_species.catch_rate
         f.write(sprintf("Happiness = %d\r\n", species.happiness)) if species.happiness != base_species.happiness
         if species.abilities.length > 0 && species.abilities != base_species.abilities
@@ -425,18 +436,15 @@ module Compiler
             next if evo[3]   # Skip prevolution entries
             f.write(",") if need_comma
             need_comma = true
-            f.write(sprintf("%s,%s,", evo[0], getConstantName(PBEvolution, evo[1])))
-            param_type = PBEvolution.getFunction(evo[1], "parameterType")
-            has_param = !PBEvolution.hasFunction?(evo[1], "parameterType") || param_type != nil
-            next if !has_param
-            if param_type
-              if GameData.const_defined?(param_type.to_sym)
-                f.write(evo[2].to_s)
-              else
+            evo_type_data = GameData::Evolution.get(evo[1])
+            param_type = evo_type_data.parameter
+            f.write(sprintf("%s,%s,", evo[0], evo_type_data.id.to_s))
+            if !param_type.nil?
+              if !GameData.const_defined?(param_type.to_sym) && param_type.is_a?(Symbol)
                 f.write(getConstantName(param_type, evo[2]))
+              else
+                f.write(evo[2].to_s)
               end
-            else
-              f.write(evo[2].to_s)
             end
           end
           f.write("\r\n")
@@ -482,7 +490,7 @@ module Compiler
           if current_family && current_family.include?(species)
             f.write(",") if comma
           else
-            current_family = EvolutionHelper.all_related_species(species)
+            current_family = GameData::Species.get(species).get_related_species
             comma = false
             f.write("\r\n")
           end
@@ -529,18 +537,18 @@ module Compiler
         else
           f.write(sprintf("[%03d]%s\r\n", encounter_data.map, map_name))
         end
-        encounter_data.types.each_with_index do |entries, type|
-          next if !entries || entries.length == 0
+        encounter_data.types.each do |type, slots|
+          next if !slots || slots.length == 0
           if encounter_data.step_chances[type] && encounter_data.step_chances[type] > 0
-            f.write(sprintf("%s,%d\r\n", EncounterTypes::Names[type], encounter_data.step_chances[type]))
+            f.write(sprintf("%s,%d\r\n", type.to_s, encounter_data.step_chances[type]))
           else
-            f.write(sprintf("%s\r\n", EncounterTypes::Names[type]))
+            f.write(sprintf("%s\r\n", type.to_s))
           end
-          entries.each do |entry|
-            if entry[2] == entry[3]
-              f.write(sprintf("    %d,%s,%d\r\n", entry[0], entry[1], entry[2]))
+          slots.each do |slot|
+            if slot[2] == slot[3]
+              f.write(sprintf("    %d,%s,%d\r\n", slot[0], slot[1], slot[2]))
             else
-              f.write(sprintf("    %d,%s,%d,%d\r\n", entry[0], entry[1], entry[2], entry[3]))
+              f.write(sprintf("    %d,%s,%d,%d\r\n", slot[0], slot[1], slot[2], slot[3]))
             end
           end
         end
@@ -604,12 +612,15 @@ module Compiler
           f.write(sprintf("    Ability = %d\r\n", pkmn[:ability_flag])) if pkmn[:ability_flag]
           f.write(sprintf("    Item = %s\r\n", pkmn[:item])) if pkmn[:item]
           f.write(sprintf("    Nature = %s\r\n", pkmn[:nature])) if pkmn[:nature]
-          if pkmn[:iv] && pkmn[:iv].length > 0
-            f.write(sprintf("    IV = %s\r\n", (pkmn[:iv].uniq.length == 1) ? pkmn[:iv][0] : pkmn[:iv].join(",")))
+          ivs_array = []
+          evs_array = []
+          GameData::Stat.each_main do |s|
+            next if s.pbs_order < 0
+            ivs_array[s.pbs_order] = pkmn[:iv][s.id] if pkmn[:iv]
+            evs_array[s.pbs_order] = pkmn[:ev][s.id] if pkmn[:ev]
           end
-          if pkmn[:ev] && pkmn[:ev].length > 0
-            f.write(sprintf("    EV = %s\r\n", (pkmn[:ev].uniq.length == 1) ? pkmn[:ev][0] : pkmn[:ev].join(",")))
-          end
+          f.write(sprintf("    IV = %s\r\n", ivs_array.join(","))) if pkmn[:iv]
+          f.write(sprintf("    EV = %s\r\n", evs_array.join(","))) if pkmn[:ev]
           f.write(sprintf("    Happiness = %d\r\n", pkmn[:happiness])) if pkmn[:happiness]
           f.write(sprintf("    Ball = %d\r\n", pkmn[:poke_ball])) if pkmn[:poke_ball]
         end
@@ -687,6 +698,7 @@ module Compiler
     moves   = { 0 => "" }
     items   = { 0 => "" }
     natures = {}
+    # TODO: Stat change (rewrite this).
     evs = ["HP", "ATK", "DEF", "SPD", "SA", "SD"]
     File.open(filename,"wb") { |f|
       add_PBS_header_to_file(f)
@@ -697,9 +709,10 @@ module Compiler
         c1 = (species[pkmn.species]) ? species[pkmn.species] : (species[pkmn.species] = GameData::Species.get(pkmn.species).species.to_s)
         c2 = (items[pkmn.item]) ? items[pkmn.item] : (items[pkmn.item] = GameData::Item.get(pkmn.item).id.to_s)
         c3 = (natures[pkmn.nature]) ? natures[pkmn.nature] : (natures[pkmn.nature] = GameData::Nature.get(pkmn.nature).id.to_s)
+        # TODO: Stat change (rewrite this).
         evlist = ""
         ev = pkmn.ev
-        for i in 0...ev
+        for i in 0...evs.length
           if (ev & (1 << i)) != 0
             evlist += "," if evlist.length > 0
             evlist += evs[i]

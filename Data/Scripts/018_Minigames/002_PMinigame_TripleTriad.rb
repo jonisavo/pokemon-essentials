@@ -15,12 +15,12 @@ class TriadCard
     @form    = form
     species_data = GameData::Species.get_species_form(@species, @form)
     baseStats = species_data.base_stats
-    hp      = baseStats[PBStats::HP]
-    attack  = baseStats[PBStats::ATTACK]
-    defense = baseStats[PBStats::DEFENSE]
-    spAtk   = baseStats[PBStats::SPATK]
-    spDef   = baseStats[PBStats::SPDEF]
-    speed   = baseStats[PBStats::SPEED]
+    hp      = baseStats[:HP]
+    attack  = baseStats[:ATTACK]
+    defense = baseStats[:DEFENSE]
+    spAtk   = baseStats[:SPECIAL_ATTACK]
+    spDef   = baseStats[:SPECIAL_DEFENSE]
+    speed   = baseStats[:SPEED]
     @type  = species_data.type1
     @type  = species_data.type2 if @type == :NORMAL && species_data.type2
     @west  = baseStatToValue(attack + speed / 3)
@@ -192,8 +192,8 @@ class TriadScene
     @sprites["overlay"].bitmap = BitmapWrapper.new(Graphics.width,Graphics.height)
     pbSetSystemFont(@sprites["overlay"].bitmap)
     pbDrawTextPositions(@sprites["overlay"].bitmap,[
-       [@battle.opponentName,52,4,2,Color.new(248,248,248),Color.new(96,96,96)],
-       [@battle.playerName,Graphics.width-52,4,2,Color.new(248,248,248),Color.new(96,96,96)]
+       [@battle.opponentName,52,-2,2,Color.new(248,248,248),Color.new(96,96,96)],
+       [@battle.playerName,Graphics.width-52,-2,2,Color.new(248,248,248),Color.new(96,96,96)]
     ])
     @sprites["score"] = Sprite.new(@viewport)
     @sprites["score"].bitmap = BitmapWrapper.new(Graphics.width,Graphics.height)
@@ -567,7 +567,7 @@ class TriadScene
       oppscore    += @opponentCardIndexes.length
     end
     pbDrawTextPositions(bitmap,[
-       [_INTL("{1}-{2}",oppscore,playerscore),Graphics.width/2,4,2,Color.new(248,248,248),Color.new(96,96,96)]
+       [_INTL("{1}-{2}",oppscore,playerscore),Graphics.width/2,-2,2,Color.new(248,248,248),Color.new(96,96,96)]
     ])
   end
 
@@ -1052,7 +1052,7 @@ def pbBuyTriads
   GameData::Species.each do |s|
     next if s.form != 0
     next if !$Trainer.owned?(s.species)
-    price = TriadCard.new(i).price
+    price = TriadCard.new(s.id).price
     commands.push([price, s.name, _INTL("{1} - ${2}", s.name, price.to_s_formatted), s.id])
   end
   if commands.length == 0

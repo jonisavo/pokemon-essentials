@@ -80,7 +80,7 @@ class Scene_Map
     $game_player.straighten
     $game_map.update
     disposeSpritesets
-    GC.start
+    RPG::Cache.clear
     createSpritesets
     if $game_temp.transition_processing
       $game_temp.transition_processing = false
@@ -186,10 +186,6 @@ class Scene_Map
       elsif Input.trigger?(Input::Z)
         unless $game_player.moving?
           $PokemonTemp.keyItemCalling = true
-        end
-      elsif Input.trigger?(Input::SPECIAL)
-        if $PokemonSystem.runstyle==1
-          $PokemonGlobal.runtoggle = !$PokemonGlobal.runtoggle
         end
       elsif Input.press?(Input::F9)
         $game_temp.debug_calling = true if $DEBUG

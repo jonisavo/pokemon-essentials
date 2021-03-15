@@ -208,8 +208,7 @@ class Window_PokemonOption < Window_DrawableCommand
     rect = drawCursor(index,rect)
     optionname = (index==@options.length) ? _INTL("Cancel") : @options[index].name
     optionwidth = rect.width*9/20
-    text_y = rect.y + 6
-    pbDrawShadowText(self.contents,rect.x,text_y,optionwidth,rect.height,optionname,
+    pbDrawShadowText(self.contents,rect.x,rect.y,optionwidth,rect.height,optionname,
        @nameBaseColor,@nameShadowColor)
     return if index==@options.length
     if @options[index].is_a?(EnumOption)
@@ -223,7 +222,7 @@ class Window_PokemonOption < Window_DrawableCommand
         xpos = optionwidth+rect.x
         ivalue = 0
         for value in @options[index].values
-          pbDrawShadowText(self.contents,xpos,text_y,optionwidth,rect.height,value,
+          pbDrawShadowText(self.contents,xpos,rect.y,optionwidth,rect.height,value,
              (ivalue==self[index]) ? @selBaseColor : self.baseColor,
              (ivalue==self[index]) ? @selShadowColor : self.shadowColor
           )
@@ -232,14 +231,14 @@ class Window_PokemonOption < Window_DrawableCommand
           ivalue += 1
         end
       else
-        pbDrawShadowText(self.contents,rect.x+optionwidth,text_y,optionwidth,rect.height,
+        pbDrawShadowText(self.contents,rect.x+optionwidth,rect.y,optionwidth,rect.height,
            optionname,self.baseColor,self.shadowColor)
       end
     elsif @options[index].is_a?(NumberOption)
       value = _INTL("Type {1}/{2}",@options[index].optstart+self[index],
          @options[index].optend-@options[index].optstart+1)
       xpos = optionwidth+rect.x
-      pbDrawShadowText(self.contents,xpos,text_y,optionwidth,rect.height,value,
+      pbDrawShadowText(self.contents,xpos,rect.y,optionwidth,rect.height,value,
          @selBaseColor,@selShadowColor)
     elsif @options[index].is_a?(SliderOption)
       value = sprintf(" %d",@options[index].optend)
@@ -253,12 +252,12 @@ class Window_PokemonOption < Window_DrawableCommand
          8,16,@selBaseColor)
       value = sprintf("%d",@options[index].optstart+self[index])
       xpos += optionwidth-self.contents.text_size(value).width
-      pbDrawShadowText(self.contents,xpos,text_y,optionwidth,rect.height,value,
+      pbDrawShadowText(self.contents,xpos,rect.y,optionwidth,rect.height,value,
          @selBaseColor,@selShadowColor)
     else
       value = @options[index].values[self[index]]
       xpos = optionwidth+rect.x
-      pbDrawShadowText(self.contents,xpos,text_y,optionwidth,rect.height,value,
+      pbDrawShadowText(self.contents,xpos,rect.y,optionwidth,rect.height,value,
          @selBaseColor,@selShadowColor)
     end
   end
@@ -349,14 +348,9 @@ class PokemonOption_Scene
          proc { $PokemonSystem.battlestyle },
          proc { |value| $PokemonSystem.battlestyle = value }
        ),
-       EnumOption.new(_INTL("Running Key"),[_INTL("Hold"),_INTL("Toggle")],
+       EnumOption.new(_INTL("Default Movement"),[_INTL("Walking"),_INTL("Running")],
          proc { $PokemonSystem.runstyle },
-         proc { |value|
-           if $PokemonSystem.runstyle!=value
-             $PokemonSystem.runstyle = value
-             $PokemonGlobal.runtoggle = false if $PokemonGlobal
-           end
-         }
+         proc { |value| $PokemonSystem.runstyle = value }
        ),
        NumberOption.new(_INTL("Speech Frame"),1,Settings::SPEECH_WINDOWSKINS.length,
          proc { $PokemonSystem.textskin },

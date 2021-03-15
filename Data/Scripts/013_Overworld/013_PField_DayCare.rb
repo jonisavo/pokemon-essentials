@@ -172,7 +172,7 @@ def pbDayCareGenerateEgg
     babyspecies = (ditto1) ? father.species : mother.species
   end
   # Determine the egg's species
-  babyspecies = EvolutionHelper.baby_species(babyspecies, true, mother.item_id, father.item_id)
+  babyspecies = GameData::Species.get(babyspecies).get_bably_species(true, mother.item_id, father.item_id)
   case babyspecies
   when :MANAPHY
     babyspecies = :PHIONE if GameData::Species.exists?(:PHIONE)
@@ -201,7 +201,7 @@ def pbDayCareGenerateEgg
   if [:RATTATA, :SANDSHREW, :VULPIX, :DIGLETT, :MEOWTH, :GEODUDE, :GRIMER].include?(babyspecies)
     if mother.form==1
       egg.form = 1 if mother.hasItem?(:EVERSTONE)
-    elsif EvolutionHelper.baby_species(father.species, true, mother.item_id, father.item_id) == babyspecies
+    elsif father.species_data.get_baby_species(true, mother.item_id, father.item_id) == babyspecies
       egg.form = 1 if father.form==1 && father.hasItem?(:EVERSTONE)
     end
   end
@@ -269,21 +269,20 @@ def pbDayCareGenerateEgg
     finalmoves.push(Pokemon::Move.new(moves[i]))
   end
   # Inheriting Individual Values
-  ivs = []
-  for i in 0...6
-    ivs[i] = rand(32)
-  end
+  ivs = {}
+  GameData::Stat.each_main { |s| ivs[s.id] = rand(Pokemon::IV_STAT_LIMIT + 1) }
   ivinherit = []
   for i in 0...2
     parent = [mother,father][i]
-    ivinherit[i] = PBStats::HP if parent.hasItem?(:POWERWEIGHT)
-    ivinherit[i] = PBStats::ATTACK if parent.hasItem?(:POWERBRACER)
-    ivinherit[i] = PBStats::DEFENSE if parent.hasItem?(:POWERBELT)
-    ivinherit[i] = PBStats::SPATK if parent.hasItem?(:POWERLENS)
-    ivinherit[i] = PBStats::SPDEF if parent.hasItem?(:POWERBAND)
-    ivinherit[i] = PBStats::SPEED if parent.hasItem?(:POWERANKLET)
+    ivinherit[i] = :HP if parent.hasItem?(:POWERWEIGHT)
+    ivinherit[i] = :ATTACK if parent.hasItem?(:POWERBRACER)
+    ivinherit[i] = :DEFENSE if parent.hasItem?(:POWERBELT)
+    ivinherit[i] = :SPECIAL_ATTACK if parent.hasItem?(:POWERLENS)
+    ivinherit[i] = :SPECIAL_DEFENSE if parent.hasItem?(:POWERBAND)
+    ivinherit[i] = :SPEED if parent.hasItem?(:POWERANKLET)
   end
-  num = 0; r = rand(2)
+  num = 0
+  r = rand(2)
   2.times do
     if ivinherit[r]!=nil
       parent = [mother,father][r]
@@ -296,7 +295,7 @@ def pbDayCareGenerateEgg
   limit = (mother.hasItem?(:DESTINYKNOT) || father.hasItem?(:DESTINYKNOT)) ? 5 : 3
   loop do
     freestats = []
-    PBStats.eachStat { |s| freestats.push(s) if !ivinherit.include?(s) }
+    GameData::Stat.each_main { |s| freestats.push(s.id) if !ivinherit.include?(s.id) }
     break if freestats.length==0
     r = freestats[rand(freestats.length)]
     parent = [mother,father][rand(2)]

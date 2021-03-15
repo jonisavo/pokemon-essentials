@@ -169,9 +169,7 @@ def pbGetEnvironment
   ret = :None
   map_metadata = GameData::MapMetadata.try_get($game_map.map_id)
   ret = map_metadata.battle_environment if map_metadata && map_metadata.battle_environment
-  if $PokemonTemp.encounterType == EncounterTypes::OldRod ||
-     $PokemonTemp.encounterType == EncounterTypes::GoodRod ||
-     $PokemonTemp.encounterType == EncounterTypes::SuperRod
+  if GameData::EncounterType.get($PokemonTemp.encounterType).type == :fishing
     terrainTag = pbFacingTerrainTag
   else
     terrainTag = $game_player.terrain_tag
@@ -598,7 +596,7 @@ def pbEvolutionCheck(currentLevels)
     pkmn = $Trainer.party[i]
     next if !pkmn || (pkmn.hp==0 && !Settings::CHECK_EVOLUTION_FOR_FAINTED_POKEMON)
     next if currentLevels[i] && pkmn.level==currentLevels[i]
-    newSpecies = EvolutionCheck.check_level_up_methods(pkmn)
+    newSpecies = pkmn.check_evolution_on_level_up
     next if !newSpecies
     evo = PokemonEvolutionScene.new
     evo.pbStartScreen(pkmn,newSpecies)

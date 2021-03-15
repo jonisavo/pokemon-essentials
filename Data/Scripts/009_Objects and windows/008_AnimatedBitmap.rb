@@ -66,7 +66,7 @@ class PngAnimatedBitmap
     @frames=[]
     @currentFrame=0
     @framecount=0
-    panorama=BitmapCache.load_bitmap(file,hue)
+    panorama=RPG::Cache.load_bitmap("",file,hue)
     if file.split(/[\\\/]/)[-1][/^\[(\d+)(?:,(\d+))?\]/]   # Starts with 1 or 2 numbers in brackets
       # File has a frame count
       numFrames = $1.to_i
@@ -187,7 +187,7 @@ class GifBitmap
     file="" if !file
     file=canonicalize(file)
     begin
-      bitmap=BitmapCache.load_bitmap(file,hue)
+      bitmap=RPG::Cache.load_bitmap("",file,hue)
     rescue
       bitmap=nil
     end
@@ -199,10 +199,10 @@ class GifBitmap
           filestrName=file+".gif"
         elsif (filestring=pbGetFileChar(file+".png"))
           filestrName=file+".png"
-        elsif (filestring=pbGetFileChar(file+".jpg"))
-          filestrName=file+".jpg"
-        elsif (filestring=pbGetFileChar(file+".bmp"))
-          filestrName=file+".bmp"
+#        elsif (filestring=pbGetFileChar(file+".jpg"))
+#          filestrName=file+".jpg"
+#        elsif (filestring=pbGetFileChar(file+".bmp"))
+#          filestrName=file+".bmp"
         end
       end
     end
@@ -242,7 +242,7 @@ class GifBitmap
               @gifbitmaps.push(gifbitmap)
               bmfile.hue_change(hue) if hue!=0
               if hue==0 && @gifdelays.length==1
-                BitmapCache.setKey(file,gifbitmap)
+                RPG::Cache.setKey(file,gifbitmap)
               end
               File.delete(bmfile)
             else
@@ -257,7 +257,7 @@ class GifBitmap
         @gifdelays=[1]
       end
       if @gifbitmaps.length==1
-        BitmapCache.setKey(file,@gifbitmaps[0])
+        RPG::Cache.setKey(file,@gifbitmaps[0])
       end
     end
   end
@@ -296,7 +296,7 @@ class GifBitmap
   end
 
   def totalFrames
-    @totalframes/2 # Due to frame count being incremented by 2
+    @totalframes/2   # Due to frame count being incremented by 2
   end
 
   def disposed?
@@ -311,7 +311,7 @@ class GifBitmap
     @gifbitmaps.length==0 ? 0 : @gifbitmaps[0].height
   end
 
- # This function must be called in order to animate the GIF image.
+  # This function must be called in order to animate the GIF image.
   def update
     return if disposed?
     if @gifbitmaps.length>0
@@ -351,7 +351,7 @@ end
 
 
 def pbGetTileBitmap(filename, tile_id, hue)
-  return BitmapCache.tileEx(filename, tile_id, hue) { |f|
+  return RPG::Cache.tileEx(filename, tile_id, hue) { |f|
     AnimatedBitmap.new("Graphics/Tilesets/"+filename).deanimate
   }
 end

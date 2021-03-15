@@ -422,7 +422,6 @@ _drawFormattedChars_ function.
 def getFormattedText(bitmap,xDst,yDst,widthDst,heightDst,text,lineheight=32,
                      newlineBreaks=true,explicitBreaksOnly=false,
                      collapseAlignments=false)
-  yDst += 4
   dummybitmap=nil
   if !bitmap || bitmap.disposed?   # allows function to be called with nil bitmap
     dummybitmap=Bitmap.new(1,1)
@@ -592,7 +591,7 @@ def getFormattedText(bitmap,xDst,yDst,widthDst,heightDst,text,lineheight=32,
             alignstack.push(0)
             nextline=1 if x>0 && nextline==0
           else
-            alignstack.pop;
+            alignstack.pop
             nextline=1 if x>0 && nextline==0
           end
         elsif control=="ac" # Center align
@@ -600,7 +599,7 @@ def getFormattedText(bitmap,xDst,yDst,widthDst,heightDst,text,lineheight=32,
             alignstack.push(2)
             nextline=1 if x>0 && nextline==0
           else
-            alignstack.pop;
+            alignstack.pop
             nextline=1 if x>0 && nextline==0
           end
         elsif control=="icon" # Icon
@@ -1090,7 +1089,7 @@ def pbDrawShadowText(bitmap,x,y,width,height,string,baseColor,shadowColor=nil,al
   return if !bitmap || !string
   width=(width<0) ? bitmap.text_size(string).width+1 : width
   height=(height<0) ? bitmap.text_size(string).height+1 : height
-  y += -2
+  y += 4
   if shadowColor && shadowColor.alpha>0
     bitmap.font.color=shadowColor
     bitmap.draw_text(x+2,y,width,height,string,align)
