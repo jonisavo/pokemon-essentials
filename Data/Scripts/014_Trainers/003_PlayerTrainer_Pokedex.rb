@@ -109,10 +109,11 @@ class PlayerTrainer
       return ret
     end
 
-    # @param dex_id [Integer] dex ID
+    # @param dex_id [Integer] dex ID (-1 is the national dex)
     # @return [Boolean] whether the given dex is unlocked
     def unlocked?(dex_id)
       validate dex_id => Integer
+      dex_id = self.unlocked_dex_count - 1 if dex_id == -1
       return @unlocked_dexes[dex_id] == true
     end
 
