@@ -158,7 +158,7 @@ class PlayerTrainer
     # Used to decide whether to show the Pokédex in the pause menu.
     def refresh_viable_dexes
       @viable_dexes = []
-      dex_count = self.unlocked_dex_count
+      dex_count = @unlocked_dexes.length
       if Settings::USE_CURRENT_REGION_DEX
         region = pbGetCurrentRegion
         region = -1 if region >= dex_count - 1
